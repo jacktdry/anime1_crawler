@@ -1,9 +1,10 @@
 name: Run Anime Crawler
 
 on:
+  push:
   workflow_dispatch:
   schedule:
-    - cron: '0 18 * * *'  # 每天 UTC+0 18:00 執行一次，可依需求調整
+    - cron: '0 17 * * *'  # 每天台北時間凌晨1點（UTC+8），即UTC 17:00
 
 jobs:
   run-crawler:
