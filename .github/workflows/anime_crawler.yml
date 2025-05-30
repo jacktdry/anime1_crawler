@@ -29,16 +29,12 @@ jobs:
 
       - name: Commit and push anime_data.json
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "jacktdry"
+          git config --global user.email "jacktdry@gmail.com"
           git add anime_data.json
-          git commit -m "Update anime_data.json [auto]" || echo "No changes to commit"
-          git push origin HEAD:${{ github.ref }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload anime_data.json as artifact
-        uses: actions/upload-artifact@v4
+          git commit -m "Update anime_data.json"
+      - name: Push changes
+        if: success()
+        uses: ad-m/github-push-action@master
         with:
-          name: anime_data
-          path: anime_data.json
+          github_token: ${{ secrets.GITHUB_TOKEN }}
