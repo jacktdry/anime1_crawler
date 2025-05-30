@@ -50,8 +50,10 @@ class AnimeDataManager:
         self.file_lock = threading.Lock()
         self.data = self.load_existing_data()
         
-        # 確保輸出目錄存在
-        os.makedirs(os.path.dirname(self.filename), exist_ok=True)
+        # 確保輸出目錄存在（僅當有目錄時才建立）
+        dir_name = os.path.dirname(self.filename)
+        if dir_name:
+            os.makedirs(dir_name, exist_ok=True)
     
     def load_existing_data(self):
         """載入現有的資料檔案"""
