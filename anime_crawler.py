@@ -43,7 +43,7 @@ def retry_on_exception(retries=3, delay=1):
     return decorator
 
 class AnimeDataManager:
-    def __init__(self, filename="anime_data.json"):
+    def __init__(self, filename="docs/anime_data.json"):
         self.filename = filename
         self.data_lock = threading.Lock()
         self.file_lock = threading.Lock()
@@ -200,7 +200,7 @@ def crawl_from_year(start_year):
 
 def main():
     logger.info("開始爬取動畫資料...")
-    data_file = Path("anime_data.json")
+    data_file = Path("docs/anime_data.json")
     
     need_full_crawl = False
     if not data_file.exists():
@@ -212,7 +212,7 @@ def main():
             if data == {}:
                 need_full_crawl = True
         except Exception as e:
-            logger.warning(f"讀取 anime_data.json 時發生錯誤，將進行完整爬取: {str(e)}")
+            logger.warning(f"讀取 docs/anime_data.json 時發生錯誤，將進行完整爬取: {str(e)}")
             need_full_crawl = True
 
     if need_full_crawl:
