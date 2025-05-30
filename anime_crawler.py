@@ -203,8 +203,21 @@ def main():
     logger.info("開始爬取動畫資料...")
     data_file = Path("anime_data.json")
     
+    need_full_crawl = False
     if not data_file.exists():
-        logger.info("找不到現有資料檔案，將從 2017 年開始爬取所有動畫資料...")
+        need_full_crawl = True
+    else:
+        try:
+            with open(data_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if data == {}:
+                need_full_crawl = True
+        except Exception as e:
+            logger.warning(f"讀取 anime_data.json 時發生錯誤，將進行完整爬取: {str(e)}")
+            need_full_crawl = True
+
+    if need_full_crawl:
+        logger.info("找不到現有資料檔案或內容為空，將從 2017 年開始爬取所有動畫資料...")
         crawl_from_year(2017)
     else:
         # 爬取最近三個季度的資料
