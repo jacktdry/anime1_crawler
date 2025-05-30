@@ -32,7 +32,7 @@ jobs:
           git config --global user.name "jacktdry"
           git config --global user.email "jacktdry@gmail.com"
           git add anime_data.json
-          git commit -m "Update anime_data.json"
+          git commit -m "Update anime_data.json" || echo "Nothing to commit."
       - name: Push changes
         if: success()
         uses: ad-m/github-push-action@master
