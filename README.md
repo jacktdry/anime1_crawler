@@ -1,145 +1,133 @@
-# anime1.me 動畫季度資料爬蟲
+# Anime1 爬蟲
 
-## 專案簡介
-本專案用於自動化爬取 [anime1.me](https://anime1.me) 各季度動畫名稱與 ID，方便其他專案進行資料整合或延伸應用。
+這是一個用於爬取 [Anime1.me](https://anime1.me) 網站動畫資訊的 Python 程式。
 
 ## 功能特色
-- 自動爬取 anime1.me 各年度、季度的動畫名稱與對應 ID
-- 輸出結構化 JSON 檔案，便於後續資料處理
-- 支援批次更新與資料覆蓋
-- 程式碼簡潔，易於維護與擴充
 
-## 安裝與執行方式
+- 🚀 **智慧爬取**: 自動判斷是否需要完整爬取或增量更新
+- 📊 **資料排序**: 動畫資料按標題自動排序
+- 🔄 **重試機制**: 內建網路請求重試和錯誤處理
+- 🛡️ **友善爬取**: 包含延遲機制，避免對伺服器造成負擔
+- 📁 **模組化設計**: 程式碼分離，易於維護和擴展
 
-### 環境需求
-- Python 版本：3.8 以上
+## 安裝需求
 
-### 安裝依賴
 ```bash
 pip install -r requirements.txt
 ```
 
-### 執行指令範例
+## 使用方法
+
 ```bash
-python anime_crawler.py
+python main.py
 ```
 
-## 輸出說明
+程式會自動：
+1. 檢查是否存在現有資料檔案
+2. 如果沒有資料，從 2017 年開始完整爬取
+3. 如果有資料，只更新最近三個季度的內容
 
-執行後會於 `docs/anime_data.json` 產生動畫資料，結構如下：
+## 專案結構
+
+```
+anime1_crawler/
+├── main.py            # 主程式入口
+├── config.py          # 配置設定
+├── data_manager.py    # 資料管理模組
+├── parser.py          # 網頁解析模組
+├── utils.py           # 工具函數模組
+├── requirements.txt   # 依賴套件
+├── README.md         # 說明文件
+├── LICENSE           # MIT 授權文件
+├── test/
+│   └── test_crawler.py # 測試腳本
+└── docs/
+    └── anime_data.json # 輸出的動畫資料
+```
+
+## 模組說明
+
+### `config.py` - 配置設定
+集中管理所有配置參數，包括：
+- 網路請求設定（延遲時間、重試次數）
+- 資料檔案路徑
+- 季節對應關係
+- 日誌設定
+
+### `data_manager.py` - 資料管理
+負責處理動畫資料的：
+- 載入現有資料
+- 保存新增/更新的動畫資訊
+- 按標題排序
+- 執行緒安全的檔案操作
+
+### `parser.py` - 網頁解析
+包含兩個主要類別：
+- `AnimeParser`: 解析單一網頁的動畫資訊
+- `CrawlerEngine`: 協調批量爬取作業
+
+### `utils.py` - 工具函數
+提供通用功能：
+- 重試裝飾器
+- 季節轉換
+- URL 編碼
+- 延遲控制
+- 時間計算
+
+### `main.py` - 主程式
+簡潔的主程式，協調各模組完成爬取工作。
+
+## 配置說明
+
+可以在 `config.py` 中調整以下設定：
+
+```python
+# 修改開始爬取的年份
+DATA_CONFIG = {
+    'start_year': 2017,  # 改為您想要的起始年份
+    ...
+}
+
+# 調整延遲時間
+REQUEST_CONFIG = {
+    'request_delay_range': (1, 3),  # 請求間延遲 1-3 秒
+    'season_delay_range': (3, 5),  # 季節間延遲 3-5 秒
+    ...
+}
+```
+
+## 輸出格式
+
+動畫資料會保存在 `docs/anime_data.json`，格式如下：
 
 ```json
 {
-  "2017": {
-    "winter": [
-      {
-        "title": "élDLIVE宇宙警探",
-        "cat_id": "21"
-      },
-      {
-        "title": "超・少年偵探團NEO",
-        "cat_id": "7"
-      }
-      // ... 其他動畫
-    ],
+  "2024": {
     "spring": [
-      // ...
-    ],
-    // ...
-  },
-  // 其他年份
+      {
+        "title": "動畫標題",
+        "cat_id": "123"
+      }
+    ]
+  }
 }
 ```
-- 最外層為年份（字串）
-- 第二層為季度（如 "winter", "spring", "summer", "fall"）
-- 每個季度為動畫陣列，包含：
-  - `title`：動畫名稱
-  - `cat_id`：動畫在 anime1.me 的分類 ID
 
-## 依賴
-requirements.txt 內容如下：
-```
-flask==3.0.0
-flask-cors==4.0.0
-requests==2.31.0
-python-dotenv==1.0.0
-beautifulsoup4==4.12.2
-urllib3==2.0.7
-```
+## 錯誤處理
+
+程式包含多層錯誤處理：
+- 網路請求失敗會自動重試
+- 解析錯誤會記錄日誌並繼續處理其他項目
+- 檔案操作錯誤會有詳細的錯誤訊息
+
+## 注意事項
+
+1. **尊重網站**: 程式內建延遲機制，請勿修改為過於頻繁的請求
+2. **資料更新**: 增量更新只會處理最近三個季度的資料
+3. **檔案權限**: 確保程式有權限在 `docs/` 目錄建立和寫入檔案
 
 ## 授權
-MIT
 
----
+本專案採用 MIT 授權條款。請參閱 LICENSE 文件以獲取更多資訊。
 
-# English Version
-
-## Project Introduction
-This project automates the crawling of anime titles and IDs for each season from [anime1.me](https://anime1.me), making it convenient for data integration or further application in other projects.
-
-## Features
-- Automatically crawls anime titles and corresponding IDs for each year and season from anime1.me
-- Outputs structured JSON files for easy data processing
-- Supports batch updates and data overwriting
-- Clean code, easy to maintain and extend
-
-## Installation & Usage
-
-### Requirements
-- Python version: 3.8 or above
-
-### Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### Example Command
-```bash
-python anime_crawler.py
-```
-
-## Output Description
-
-After execution, the anime data will be generated in `docs/anime_data.json` with the following structure:
-
-```json
-{
-  "2017": {
-    "winter": [
-      {
-        "title": "élDLIVE宇宙警探",
-        "cat_id": "21"
-      },
-      {
-        "title": "超・少年偵探團NEO",
-        "cat_id": "7"
-      }
-      // ... other anime
-    ],
-    "spring": [
-      // ...
-    ],
-    // ...
-  },
-  // other years
-}
-```
-- The outermost layer is the year (string)
-- The second layer is the season (e.g., "winter", "spring", "summer", "fall")
-- Each season contains an array of anime objects, each including:
-  - `title`: Anime title
-  - `cat_id`: Category ID on anime1.me
-
-## Dependencies
-Contents of requirements.txt:
-```
-flask==3.0.0
-flask-cors==4.0.0
-requests==2.31.0
-python-dotenv==1.0.0
-beautifulsoup4==4.12.2
-urllib3==2.0.7
-```
-
-## License
-MIT
+請遵守目標網站的使用條款和 robots.txt 規範。
