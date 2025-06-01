@@ -91,8 +91,16 @@ class AnimeDataManager:
         # 寫入檔案
         with self.file_lock:
             try:
+                # 在寫入前對所有動畫列表按照 title 排序
+                sorted_data = {}
+                for year_key, year_data in self.data.items():
+                    sorted_data[year_key] = {}
+                    for season_key, anime_list in year_data.items():
+                        # 按照 title 排序
+                        sorted_data[year_key][season_key] = sorted(anime_list, key=lambda x: x['title'])
+
                 with open(self.filename, 'w', encoding='utf-8') as f:
-                    json.dump(self.data, f, ensure_ascii=False, indent=2)
+                    json.dump(sorted_data, f, ensure_ascii=False, indent=2)
             except Exception as e:
                 logger.error(f"保存資料時發生錯誤: {str(e)}")
 
