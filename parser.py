@@ -95,7 +95,7 @@ class AnimeParser:
         add_random_delay(delay_range[0], delay_range[1])
         
         # 發送請求
-        response = requests.get(url, headers=self.headers)
+        response = requests.get(url, headers=self.headers, timeout=REQUEST_CONFIG['timeout'])
         response.raise_for_status()
         
         # 解析 HTML
@@ -127,10 +127,15 @@ class CrawlerEngine:
     協調解析器和資料管理器進行批量爬取
     """
     
-    def __init__(self):
-        """初始化爬蟲引擎"""
+    def __init__(self, data_manager: Optional[AnimeDataManager] = None):
+        """
+        初始化爬蟲引擎
+
+        Args:
+            data_manager: 資料管理器實例，未提供時自行建立（可從外部傳入以共用狀態）
+        """
         self.parser = AnimeParser()
-        self.data_manager = AnimeDataManager()
+        self.data_manager = data_manager or AnimeDataManager()
     
     def crawl_specific_seasons(self, seasons_to_crawl: List[tuple]) -> None:
         """

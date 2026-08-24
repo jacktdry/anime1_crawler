@@ -6,6 +6,7 @@ import time
 import random
 import logging
 import functools
+import requests
 from datetime import datetime
 from urllib.parse import quote
 from typing import List, Tuple, Optional
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def retry_on_exception(retries: int = 3, delay: int = 1):
     """
-    重試裝飾器
+    重試裝飾器（用戶端錯誤 4xx 不重試）
     
     Args:
         retries: 重試次數
@@ -29,12 +30,22 @@ def retry_on_exception(retries: int = 3, delay: int = 1):
             for i in range(retries):
                 try:
                     return func(*args, **kwargs)
+                except requests.exceptions.HTTPError as e:
+                    status_code = e.response.status_code if e.response is not None else None
+                    if status_code is not None and 400 <= status_code < 500:
+                        logger.error(f"在執行 {func.__name__} 時發生用戶端錯誤 {status_code}，不重試: {str(e)}")
+                        raise
+                    if i == retries - 1:  # 最後一次嘗試
+                        logger.error(f"在執行 {func.__name__} 時發生錯誤（重試 {i+1}/{retries}）: {str(e)}")
+                        raise
+                    logger.warning(f"在執行 {func.__name__} 時發生錯誤（重試 {i+1}/{retries}）: {str(e)}")
+                    time.sleep(delay * (i + 1))  # 延遲隨重試次數遞增
                 except Exception as e:
                     if i == retries - 1:  # 最後一次嘗試
                         logger.error(f"在執行 {func.__name__} 時發生錯誤（重試 {i+1}/{retries}）: {str(e)}")
                         raise
                     logger.warning(f"在執行 {func.__name__} 時發生錯誤（重試 {i+1}/{retries}）: {str(e)}")
-                    time.sleep(delay * (i + 1))  # 指數退避
+                    time.sleep(delay * (i + 1))  # 延遲隨重試次數遞增
             return None
         return wrapper
     return decorator
@@ -160,5 +171,5 @@ def extract_cat_id_from_href(href: str) -> Optional[str]:
         提取的 cat_id，如果沒找到則返回 None
     """
     if '?cat=' in href:
-        return href.split('?cat=')[1]
+        return href.split('?cat=', 1)[1].split('&', 1)[0]
     return None

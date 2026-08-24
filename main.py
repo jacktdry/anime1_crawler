@@ -40,7 +40,7 @@ class AnimeCrawlerApp:
     def __init__(self):
         """初始化爬蟲應用程式"""
         self.data_manager = AnimeDataManager()
-        self.crawler_engine = CrawlerEngine()
+        self.crawler_engine = CrawlerEngine(data_manager=self.data_manager)
     
     def should_perform_full_crawl(self) -> bool:
         """

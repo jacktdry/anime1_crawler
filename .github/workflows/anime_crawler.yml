@@ -24,6 +24,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Run tests
+        run: python test/test_crawler.py
+
       - name: Run main.py
         run: python main.py
 
@@ -31,10 +34,10 @@ jobs:
         run: |
           git config --global user.name "jacktdry"
           git config --global user.email "jacktdry@gmail.com"
-          git add .
+          git add docs/anime_data.json
           git commit -m "Update anime_data.json" || echo "Nothing to commit."
       - name: Push changes
         if: success()
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@v1.6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
