@@ -3,8 +3,8 @@ name: Run Anime Crawler
 on:
   push:
   workflow_dispatch:
-  schedule:
-    - cron: '0 17 * * *'  # 每天台北時間凌晨1點（UTC+8），即UTC 17:00
+  # Daily scheduling moves to infra/cloudflare/anime1-crawler-trigger.
+  # Merge only after its secret, deployment, and Cron dispatch are verified.
 
 permissions:
   contents: write
